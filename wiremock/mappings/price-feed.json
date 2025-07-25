@@ -1,0 +1,96 @@
+{
+  "mappings": [
+    {
+      "priority": 1,
+      "request": {
+        "method": "GET",
+        "urlPathPattern": "/price",
+        "queryParameters": {
+          "symbol": {
+            "equalTo": "AAPL"
+          }
+        }
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "symbol": "AAPL",
+          "price": "{{randomDecimal lower=200.0 upper=220.0}}"
+        },
+        "transformers": ["response-template"]
+      }
+    },
+    {
+      "priority": 1,
+      "request": {
+        "method": "GET",
+        "urlPathPattern": "/price",
+        "queryParameters": {
+          "symbol": {
+            "equalTo": "GOOGL"
+          }
+        }
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "symbol": "GOOGL",
+          "price": "{{randomDecimal lower=2700.0 upper=2900.0}}"
+        },
+        "transformers": ["response-template"]
+      }
+    },
+    {
+      "priority": 1,
+      "request": {
+        "method": "GET",
+        "urlPathPattern": "/price",
+        "queryParameters": {
+          "symbol": {
+            "equalTo": "MSFT"
+          }
+        }
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "symbol": "MSFT",
+          "price": "{{randomDecimal lower=400.0 upper=430.0}}"
+        },
+        "transformers": ["response-template"]
+      }
+    },
+    {
+      "priority": 5,
+      "request": {
+        "method": "GET",
+        "urlPathPattern": "/price",
+        "queryParameters": {
+          "symbol": {
+            "matches": ".*"
+          }
+        }
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "symbol": "{{request.query.symbol}}",
+          "price": "{{randomDecimal lower=50.0 upper=500.0}}"
+        },
+        "transformers": ["response-template"]
+      }
+    }
+  ]
+}

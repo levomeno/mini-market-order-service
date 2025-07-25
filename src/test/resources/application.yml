@@ -1,0 +1,22 @@
+app:
+  price-feed:
+    base-url: http://localhost:9596
+    timeout: 5000
+    retry:
+      max-attempts: 4
+      initial-delay: 1000
+      multiplier: 2.0
+      max-delay: 8000
+  rate-limit:
+    requests-per-second: 10
+    bucket-capacity: 10
+
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+
+logging:
+  level:
+    com.example.minimarket: DEBUG
+    org.springframework.web: DEBUG

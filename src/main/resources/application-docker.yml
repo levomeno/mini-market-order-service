@@ -1,0 +1,21 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://postgres:5432/minimarket
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+  
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+
+app:
+  price-feed:
+    base-url: ${PRICE_FEED_URL}
+
+logging:
+  level:
+    com.example.minimarket: INFO
+    org.springframework.web: INFO
+    org.hibernate.SQL: INFO
+
