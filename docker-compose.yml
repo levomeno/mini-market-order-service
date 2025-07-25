@@ -1,0 +1,94 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: minimarket-postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "sh -c 'pg_isready -U \"$POSTGRES_USER\" -d \"$POSTGRES_DB\"'"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - minimarket-network
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: minimarket-redis
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - minimarket-network
+
+  # Mock Price Feed Service
+  mock-price-feed:
+    image: wiremock/wiremock:latest
+    container_name: minimarket-mock-price-feed
+    ports:
+      - "8081:8080"
+    volumes:
+      - ./wiremock:/home/wiremock
+    command: --global-response-templating --verbose
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/__admin/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - minimarket-network
+
+  # Main Application
+  app:
+    build: .
+    container_name: minimarket-app
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      PRICE_FEED_URL: http://mock-price-feed:8080
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      mock-price-feed:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - minimarket-network
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  minimarket-network:
+    driver: bridge
+
